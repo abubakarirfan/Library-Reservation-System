@@ -76,13 +76,14 @@ if (isset($_POST["issue_book_button"])) {
                                         ':issue_date_time'  =>  $today_date,
                                         ':expected_return_date' => $expected_return_date,
                                         ':return_date_time' =>  '',
-                                        ':book_issue_status'    =>  'Issue'
+                                        ':book_issue_status'    =>  'Issue',
+                                        ':book_fines'           => '0'
                                     );
 
                                     $query = "
                                     INSERT INTO lms_issue_book 
-                                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status) 
-                                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status)
+                                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status, book_fines) 
+                                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status, :book_fines)
                                     ";
 
                                     $statement = $connect->prepare($query);
@@ -205,6 +206,9 @@ include 'header.php';
                             </form>
                             <script>
                                 var book_id = document.getElementById('book_id');
+                                var user_id = document.getElementById('user_id');
+                                var book_result = document.getElementById('book_isbn_result');
+                                var user_result = document.getElementById('user_unique_id_result');
 
                                 book_id.onkeyup = function() {
                                     if (this.value.length > 2) {
@@ -220,32 +224,58 @@ include 'header.php';
                                         }).then(function(response) {
                                             return response.json();
                                         }).then(function(responseData) {
-                                            var html = '<div class="list-group" style="position:absolute; width:93%">';
+                                            let listElement = document.createElement('div');
+
+                                            listElement.classList.add("list-group");
+                                            listElement.style.position = "absolute";
+                                            listElement.style.width = "93%";
 
                                             if (responseData.length > 0) {
                                                 for (var count = 0; count < responseData.length; count++) {
-                                                    html += '<a href="#" class="list-group-item list-group-item-action"><span onclick="get_text(this)">' + responseData[count].isbn_no + '</span> - <span class="text-muted">' + responseData[count].book_name + '</span></a>';
+                                                    let generalButton = document.createElement('a');
+                                                    let isbnText = document.createElement('span');
+                                                    let separatorText = document.createTextNode(" - ");
+                                                    let nameNode = document.createElement('span');
+
+                                                    generalButton.href = "#";
+                                                    generalButton.classList.add("list-group-item");
+                                                    generalButton.classList.add("list-group-item-action");
+
+                                                    nameNode.classList.add("text-muted");
+
+                                                    isbnText.innerHTML = responseData[count].isbn_no;
+                                                    nameNode.innerHTML = responseData[count].book_name;
+
+                                                    generalButton.addEventListener('click', function() {
+                                                        book_result.innerText = '';
+
+                                                        book_id.value = isbnText.textContent;
+                                                    })
+
+                                                    generalButton.appendChild(isbnText);
+                                                    generalButton.appendChild(separatorText);
+                                                    generalButton.appendChild(nameNode);
+
+                                                    listElement.appendChild(generalButton);
                                                 }
                                             } else {
-                                                html += '<a href="#" class="list-group-item list-group-item-action">No Book Found</a>';
+                                                let noChild = document.createElement('a');
+
+                                                noChild.href = '#';
+                                                noChild.classList.add("list-group-item");
+                                                noChild.classList.add("list-group-item-action");
+                                                noChild.innerText = "No book found";
+
+                                                listElement.appendChild(noChild);
                                             }
 
-                                            html += '</div>';
-
-                                            document.getElementById('book_isbn_result').innerHTML = html;
+                                            book_result.innerHTML = '';
+                                            book_result.appendChild(listElement);
                                         });
                                     } else {
-                                        document.getElementById('book_isbn_result').innerHTML = '';
+                                        book_result.innerHTML = '';
                                     }
                                 }
-
-                                function get_text(event) {
-                                    document.getElementById('book_isbn_result').innerHTML = '';
-
-                                    document.getElementById('book_id').value = event.textContent;
-                                }
-
-                                var user_id = document.getElementById('user_id');
 
                                 user_id.onkeyup = function() {
                                     if (this.value.length > 2) {
@@ -261,28 +291,57 @@ include 'header.php';
                                         }).then(function(response) {
                                             return response.json();
                                         }).then(function(responseData) {
-                                            var html = '<div class="list-group" style="position:absolute;width:93%">';
+                                            let listElement = document.createElement('div');
+
+                                            listElement.classList.add("list-group");
+                                            listElement.style.position = "absolute";
+                                            listElement.style.width = "93%";
 
                                             if (responseData.length > 0) {
                                                 for (var count = 0; count < responseData.length; count++) {
-                                                    html += '<a href="#" class="list-group-item list-group-item-action"><span onclick="get_text1(this)">' + responseData[count].user_unique_id + '</span> - <span class="text-muted">' + responseData[count].user_name + '</span></a>';
+                                                    let generalButton = document.createElement('a');
+                                                    let idNode = document.createElement('span');
+                                                    let separatorText = document.createTextNode(" - ");
+                                                    let nameNode = document.createElement('span');
+
+                                                    generalButton.href = "#";
+                                                    generalButton.classList.add("list-group-item");
+                                                    generalButton.classList.add("list-group-item-action");
+
+                                                    nameNode.classList.add("text-muted");
+
+                                                    idNode.innerHTML = responseData[count].user_unique_id;
+                                                    nameNode.innerHTML = responseData[count].user_name;
+
+                                                    generalButton.addEventListener('click', function() {
+                                                        user_result.innerText = '';
+
+                                                        user_id.value = idNode.textContent;
+                                                    })
+
+                                                    generalButton.appendChild(idNode);
+                                                    generalButton.appendChild(separatorText);
+                                                    generalButton.appendChild(nameNode);
+
+                                                    listElement.appendChild(generalButton);
                                                 }
                                             } else {
-                                                html += '<a href="#" class="list-group-item list-group-item-action">No User Found</a>';
-                                            }
-                                            html += '</div>';
+                                                let noChild = document.createElement('a');
 
-                                            document.getElementById('user_unique_id_result').innerHTML = html;
+                                                noChild.href = '#';
+                                                noChild.classList.add("list-group-item");
+                                                noChild.classList.add("list-group-item-action");
+                                                noChild.innerText = "No user found";
+
+                                                listElement.appendChild(noChild);
+                                            }
+
+                                            user_result.innerHTML = '';
+                                            user_result.appendChild(listElement);
                                         });
                                     } else {
-                                        document.getElementById('user_unique_id_result').innerHTML = '';
+                                        user_result.innerHTML = '';
                                     }
-                                }
-
-                                function get_text1(event) {
-                                    document.getElementById('user_unique_id_result').innerHTML = '';
-
-                                    document.getElementById('user_id').value = event.textContent;
                                 }
                             </script>
                         </div>
