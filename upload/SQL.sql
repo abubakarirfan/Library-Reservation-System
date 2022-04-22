@@ -240,7 +240,7 @@ CREATE TABLE `lms_user` (
 --
 
 INSERT INTO `lms_user` (`user_id`, `user_name`, `user_address`, `user_contact_no`, `user_profile`, `user_email_address`, `user_password`, `user_verificaton_code`, `user_verification_status`, `user_unique_id`, `user_status`, `user_created_on`, `user_updated_on`) VALUES
-(3, 'Paul Blake', '4016 Goldie Lane Cincinnati, OH 45202', '7539518520', '1636699900-2617.jpg', 'paulblake@gmail.com', 'password', 'b190bcd6e3b29674db036670cf122724', 'Yes', '', 'Enable', '2021-11-12 12:21:40', '2021-11-14 17:40:05'),
+(3, 'Paul Blake', '4016 Goldie Lane Cincinnati, OH 45202', '7539518520', '1636699900-2617.jpg', 'paulblake@gmail.com', 'password', 'b190bcd6e3b29674db036670cf122724', 'Yes', 'U39573214', 'Enable', '2021-11-12 12:21:40', '2021-11-14 17:40:05'),
 (4, 'Aaron Lawler', '1616 Broadway Avenue Chattanooga, TN 37421', '8569856321', '1636905360-32007.jpg', 'aaronlawler@live.com', 'password', 'add84abb895484d12344316eccb78a62', 'Yes', 'U37570190', 'Enable', '2021-11-12 16:39:20', '2021-11-17 10:49:20'),
 (5, 'Kathleen Forrest', '4545 Limer Street Greensboro, GA 30642', '85214796930', '1637041684-15131.jpg', 'kathleen@hotmail.com', 'password', '7013df5205011ffcb99ea57902c17369', 'Yes', 'U24567871', 'Enable', '2021-11-16 11:18:04', ''),
 (6, 'Carol Maney', '2703 Deer Haven Drive Greenville, SC 29607', '8521479630', '1637126571-21753.jpg', 'web-tutorial1@programmer.net', 'password', 'a6c2623984d590239244f8695df3a30b', 'Yes', 'U52357788', 'Enable', '2021-11-17 10:52:51', ''),
