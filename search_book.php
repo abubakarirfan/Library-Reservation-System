@@ -54,7 +54,6 @@ include 'header.php';
 					$statement = $connect->prepare($query);
 					$statement->execute();
 
-
 					if ($statement->rowCount() > 0) {
 						foreach ($statement->fetchAll() as $row) {
 							$book_status = '';
@@ -65,11 +64,11 @@ include 'header.php';
 							}
 							echo '
 							<tr>
-								<td>' . $row["book_name"] . '</td>
-								<td>' . $row["book_isbn_number"] . '</td>
-								<td>' . $row["book_category"] . '</td>
-								<td>' . $row["book_author"] . '</td>
-								<td>' . $row["book_no_of_copy"] . '</td>
+								<td>' . xssSanitize($row["book_name"]) . '</td>
+								<td>' . xssSanitize($row["book_isbn_number"]) . '</td>
+								<td>' . xssSanitize($row["book_category"]) . '</td>
+								<td>' . xssSanitize($row["book_author"]) . '</td>
+								<td>' . xssSanitize($row["book_no_of_copy"]) . '</td>
 								<td>' . $book_status . '</td>
 							</tr>
 						';

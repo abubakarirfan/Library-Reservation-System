@@ -37,7 +37,9 @@ if (isset($_POST["add_book"])) {
 	}
 
 	if (empty($_POST["book_isbn_number"])) {
-		$error .= '<li>Book ISBN Number is required</li>';
+        $error .= '<li>Book ISBN Number is required</li>';
+    } elseif (strlen($_POST["book_isbn_number"]) > 30) {
+        $error .= '<li>Book ISBN Number cannot be over 30 characters</li>';
 	} else {
 		$formdata['book_isbn_number'] = trim($_POST["book_isbn_number"]);
 	}
@@ -52,16 +54,18 @@ if (isset($_POST["add_book"])) {
 			':book_category'		=>	$formdata['book_category'],
 			':book_author'			=>	$formdata['book_author'],
 			':book_name'			=>	$formdata['book_name'],
+            ':book_location_rack'   =>  '?',
 			':book_isbn_number'		=>	$formdata['book_isbn_number'],
 			':book_no_of_copy'		=>	$formdata['book_no_of_copy'],
 			':book_status'			=>	'Enable',
-			':book_added_on'		=>	get_date_time($connect)
+			':book_added_on'		=>	get_date_time(time()),
+			':book_updated_on'		=>	get_date_time(time())
 		);
 
 		$query = "
 		INSERT INTO lms_book 
-        (book_category, book_author, book_name, book_isbn_number, book_no_of_copy, book_status, book_added_on) 
-        VALUES (:book_category, :book_author, :book_name, :book_isbn_number, :book_no_of_copy, :book_status, :book_added_on)
+        (book_category, book_author, book_name, book_location_rack, book_isbn_number, book_no_of_copy, book_status, book_added_on, book_updated_on) 
+        VALUES (:book_category, :book_author, :book_name, :book_location_rack, :book_isbn_number, :book_no_of_copy, :book_status, :book_added_on, :book_updated_on)
 		";
 
 		$statement = $connect->prepare($query);
@@ -196,13 +200,13 @@ include 'header.php';
 							<div class="col-md-6">
 								<div class="mb-3">
 									<label class="form-label">Book Name</label>
-									<input type="text" name="book_name" id="book_name" class="form-control" />
+									<input type="text" name="book_name" id="book_name" class="form-control" maxlength="1000" value="<?= isset($_POST["book_name"]) ? xssSanitize($_POST["book_name"]) : '' ?>" />
 								</div>
 							</div>
 							<div class="col-md-6">
 								<div class="mb-3">
 									<label class="form-label">Author</label>
-									<input type="text" name="book_author" id="book_author" class="form-control" />
+									<input type="text" name="book_author" id="book_author" class="form-control" maxlength="200" value="<?= isset($_POST["book_author"]) ? xssSanitize($_POST["book_author"]) : '' ?>" />
 								</div>
 							</div>
 						</div>
@@ -210,20 +214,20 @@ include 'header.php';
 							<div class="col-md-6">
 								<div class="mb-3">
 									<label class="form-label">Category</label>
-									<input type="text" name="book_category" id="book_category" class="form-control" />
+									<input type="text" name="book_category" id="book_category" class="form-control" maxlength="200" value="<?= isset($_POST["book_category"]) ? xssSanitize($_POST["book_category"]) : '' ?>" />
 								</div>
 							</div>
 							<div class="col-md-6">
 								<div class="mb-3">
 									<label class="form-label">No. of Copy</label>
-									<input type="number" name="book_no_of_copy" id="book_no_of_copy" step="1" class="form-control" />
+									<input type="number" name="book_no_of_copy" id="book_no_of_copy" step="1" class="form-control" maxlength="5" value="<?= isset($_POST["book_no_of_copy"]) ? xssSanitize($_POST["book_no_of_copy"]) : ''?>" />
 								</div>
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-md-6">
 								<label class="form-label">Book ISBN Number</label>
-								<input type="text" name="book_isbn_number" id="book_isbn_number" class="form-control" />
+								<input type="text" name="book_isbn_number" id="book_isbn_number" class="form-control" maxlength="30" value="<?= isset($_POST["book_isbn_number"]) ? xssSanitize($_POST["book_isbn_number"]) : ''?>" />
 							</div>
 						</div>
 						<div class="mt-4 mb-3 text-center">
@@ -235,17 +239,24 @@ include 'header.php';
 
 			<?php
 		} else if ($_GET["action"] == 'edit') {
-			$book_id = convert_data($_GET["code"], 'decrypt');
+            if (!isset($_GET["code"]) || strlen($_GET["code"]) == 0) {
+                echo "No code has been set</div></div></main></body></html>";
 
-			if ($book_id > 0) {
-				$query = "
-				SELECT * FROM lms_book 
-                WHERE book_id = '$book_id'
-				";
+                return;
+            }
 
-				$book_result = $connect->query($query);
+            $data = array(
+                ':book_id'		=>	convert_data($_GET["code"], 'decrypt')
+            );
 
-				foreach ($book_result as $book_row) {
+            $query = "SELECT * FROM lms_book WHERE book_id = :book_id";
+
+            $statement = $connect->prepare($query);
+
+            $statement->execute($data);
+
+            if ($statement->rowCount() > 0) {
+				foreach ($statement->fetchAll() as $book_row) {
 			?>
 					<ol class="breadcrumb mt-4 mb-4 bg-light p-2 border">
 						<li class="breadcrumb-item"><a href="admin_index.php">Dashboard</a></li>
@@ -262,13 +273,13 @@ include 'header.php';
 									<div class="col-md-6">
 										<div class="mb-3">
 											<label class="form-label">Book Name</label>
-											<input type="text" name="book_name" id="book_name" class="form-control" value="<?php echo $book_row['book_name']; ?>" />
+											<input type="text" name="book_name" id="book_name" class="form-control" value="<?php echo xssSanitize($book_row['book_name']); ?>" />
 										</div>
 									</div>
 									<div class="col-md-6">
 										<div class="mb-3">
 											<label class="form-label">Author</label>
-											<input type="text" name="book_author" id="book_author" class="form-control" />
+											<input type="text" name="book_author" id="book_author" class="form-control"  value="<?php echo xssSanitize($book_row['book_author']); ?>" />
 										</div>
 									</div>
 								</div>
@@ -276,13 +287,13 @@ include 'header.php';
 									<div class="col-md-6">
 										<div class="mb-3">
 											<label class="form-label">Category</label>
-											<input type="text" name="book_category" id="book_category" class="form-control" />
+											<input type="text" name="book_category" id="book_category" class="form-control" value="<?php echo xssSanitize($book_row['book_category']); ?>"/>
 										</div>
 									</div>
 									<div class="col-md-6">
 										<div class="mb-3">
 											<label class="form-label">No. of Copy</label>
-											<input type="number" name="book_no_of_copy" id="book_no_of_copy" class="form-control" step="1" value="<?php echo $book_row['book_no_of_copy']; ?>" />
+											<input type="number" name="book_no_of_copy" id="book_no_of_copy" class="form-control" step="1" value="<?php echo xssSanitize($book_row['book_no_of_copy']); ?>" />
 										</div>
 									</div>
 								</div>
@@ -291,15 +302,13 @@ include 'header.php';
 									<input type="submit" name="edit_book" class="btn btn-primary" value="Edit" />
 								</div>
 							</form>
-							<script>
-								document.getElementById('book_author').value = "<?php echo $book_row['book_author']; ?>";
-								document.getElementById('book_category').value = "<?php echo $book_row['book_category']; ?>";
-							</script>
 						</div>
 					</div>
 		<?php
 				}
-			}
+			} else {
+                ?><p>No books found</p><?php
+        }
 		}
 	} else {
 		?>
@@ -317,10 +326,10 @@ include 'header.php';
 				echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Book Data Edited <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 			}
 			if ($_GET["msg"] == 'disable') {
-				echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Book Status Change to Disable <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+				echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Book Status Changed to Disabled <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 			}
 			if ($_GET['msg'] == 'enable') {
-				echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Book Status Change to Enable <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+				echo '<div class="alert alert-success alert-dismissible fade show" role="alert">Book Status Changed to Enabled <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 			}
 		}
 
@@ -375,11 +384,11 @@ include 'header.php';
 								}
 								echo '
         				<tr>
-        					<td>' . $row["book_name"] . '</td>
-        					<td>' . $row["book_isbn_number"] . '</td>
-        					<td>' . $row["book_category"] . '</td>
-        					<td>' . $row["book_author"] . '</td>
-        					<td>' . $row["book_no_of_copy"] . '</td>
+        					<td>' . xssSanitize($row["book_name"]) . '</td>
+        					<td>' . xssSanitize($row["book_isbn_number"]) . '</td>
+        					<td>' . xssSanitize($row["book_category"]) . '</td>
+        					<td>' . xssSanitize($row["book_author"]) . '</td>
+        					<td>' . xssSanitize($row["book_no_of_copy"]) . '</td>
         					<td>' . $book_status . '</td>
         					<td>' . $row["book_updated_on"] . '</td>
         					<td>
@@ -404,12 +413,9 @@ include 'header.php';
 		</div>
 		<script>
 			function delete_data(code, status) {
-				var new_status = 'Enable';
-				if (status == 'Enable') {
-					new_status = 'Disable';
-				}
+				var new_status = status == 'Enable' ? "Disable" : "Enable";
 
-				if (confirm("Are you sure you want to " + new_status + " this Category?")) {
+				if (confirm("Are you sure you want to " + new_status + " this book?")) {
 					window.location.href = "book.php?action=delete&code=" + code + "&status=" + new_status + "";
 				}
 			}

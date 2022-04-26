@@ -2,6 +2,49 @@
 
 //function.php
 
+$sslChecksRunThisLoad = false;
+
+function xssSanitize($strIn) {
+    return htmlspecialchars($strIn);
+}
+
+function doMissingEncryptionChecks() {
+    global $sslChecksRunThisLoad;
+
+    // Already run on this page.
+    if ($sslChecksRunThisLoad) return;
+
+    $sslChecksRunThisLoad = true;
+    $missingMethods = false;
+
+    if (!function_exists("openssl_encrypt")) {
+        $missingMethods = true;
+
+        // Very horrible hack to get this method to work when the plugin is not enabled
+        function openssl_encrypt($data, $cipher_algo, $passphrase, $options, $iv) {
+            return base64_encode($data);
+        }
+    }
+
+    if (!function_exists("openssl_decrypt")) {
+        $missingMethods = true;
+
+        // Very horrible hack to get this method to work when the plugin is not enabled
+        function openssl_decrypt($data, $cipher_algo, $passphrase, $options = 0, $iv = "") {
+            return base64_decode($data);
+        }
+    }
+
+    // We are probably either using a very old PHP version, or the openssl plugin hasn't been enabled
+    // Display an error on the site to reflect this issue.
+    if ($missingMethods) {
+        fwrite(STDOUT, PHP_EOL);
+        fwrite(STDOUT, '** Warning **' . PHP_EOL);
+        fwrite(STDOUT, 'Please enable the openssl plugin in your php.ini file. ID encryption is not secure!!!' . PHP_EOL);
+
+        echo '<div style="font-weight:bold; text-align: center; padding: 15px">Please enable the openssl plugin in your php.ini file. ID encryption is currently not secure!!!</div>';
+    }
+}
 
 function is_admin_login()
 {
@@ -76,6 +119,10 @@ function get_total_book_issue_day($connect)
 
 function convert_data($string, $action = 'encrypt')
 {
+    // Check that the plugin needed for encryption is loaded
+    // If not provide some INSECURE dummy methods and alert the admin.
+    doMissingEncryptionChecks();
+
 	$encrypt_method = "AES-256-CBC";
 	$secret_key = 'AA74CDCC2BBRT935136HH7B63C27'; // user define private key
 	$secret_iv = '5fgf5HJ5g27'; // user define secret key

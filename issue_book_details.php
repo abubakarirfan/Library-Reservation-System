@@ -78,10 +78,10 @@ include 'header.php';
 
 							echo '
 						<tr>
-							<td>' . $row["book_isbn_number"] . '</td>
-							<td>' . $row["book_name"] . '</td>
-							<td>' . $row["issue_date_time"] . '</td>
-							<td>' . $row["return_date_time"] . '</td>
+							<td>' . xssSanitize($row["book_isbn_number"]) . '</td>
+							<td>' . xssSanitize($row["book_name"]) . '</td>
+							<td>' . xssSanitize($row["issue_date_time"]) . '</td>
+							<td>' . xssSanitize($row["return_date_time"]) . '</td>
 							<td>' . $status . '</td>
 						</tr>
 						';
