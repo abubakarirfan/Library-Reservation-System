@@ -19,8 +19,6 @@ $error = '';
 if (isset($_POST['return_book'], $_POST['book_id'])) {
     $bookID = convert_data($_POST['book_id'], 'decrypt');
 
-    var_dump($bookID);
-
     $data = array(
         ':return_date_time' => get_date_time($connect),
         ':book_issue_status' => 'Return',
