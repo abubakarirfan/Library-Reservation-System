@@ -32,6 +32,7 @@ include 'header.php';
 						<th>Author</th>
 						<th>No. of Available Copy</th>
 						<th>Status</th>
+                        <th>More</th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -42,6 +43,7 @@ include 'header.php';
 						<th>Author</th>
 						<th>No. of Available Copy</th>
 						<th>Status</th>
+						<th>More</th>
 					</tr>
 				</tfoot>
 				<tbody>
@@ -62,6 +64,9 @@ include 'header.php';
 							} else {
 								$book_status = '<div class="badge bg-danger">Not Available</div>';
 							}
+
+                            $bookID = convert_data($row['book_id'], 'encrypt');
+
 							echo '
 							<tr>
 								<td>' . xssSanitize($row["book_name"]) . '</td>
@@ -70,6 +75,7 @@ include 'header.php';
 								<td>' . xssSanitize($row["book_author"]) . '</td>
 								<td>' . xssSanitize($row["book_no_of_copy"]) . '</td>
 								<td>' . $book_status . '</td>
+								<td><a href="view_book.php?book=' . $bookID . '">View</a></td>
 							</tr>
 						';
 						}
