@@ -10,7 +10,7 @@ The website shall track the current status of books, if they’re available, res
 Staff will be notified when a book has been reserved through the system.
 
 | No. |                                      Item                                                       | Release Schedule  |
-| --- |:-----------------------------------------------------------------------------------------------:| -----------------:|
+| --- |:-----------------------------------------------------------------------------------------------:| :----------------:|
 | F2  | Student login page for existing students                                                        |      Sprint 1     |
 | F2  | Search for books satisfying the student’s criteria (e.g., title, author, category, etc.)        |      Sprint 1     |
 | F3  | Display details and availability of a selected book from the output of F2                       |      Sprint 1     |
