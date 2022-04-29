@@ -8,3 +8,9 @@ Library provides the university’s students with resources for study or researc
 A website with a front end coded in HTML, CSS and JavaScript, and a backend consisting purely of PHP with 2 SQL databases for books and student accounts respectively.
 The website shall track the current status of books, if they’re available, reserved or unavailable and if a book has been returned within its due date (2 weeks).
 Staff will be notified when a book has been reserved through the system.
+
+| No.           | Dependencies  | Release Schedule  |
+| ------------- |:-------------:| -----:            |
+| col 3 is      | right-aligned | $1600             |
+| col 2 is      | centered      |   $12             |
+| zebra stripes | are neat      |    $1             |
