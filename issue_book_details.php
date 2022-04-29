@@ -76,6 +76,8 @@ include 'header.php';
 								$status = '<span class="badge bg-primary">Return</span>';
 							}
 
+                            $bookID = convert_data($row['book_id'], 'encrypt');
+
 							echo '
 						<tr>
 							<td>' . xssSanitize($row["book_isbn_number"]) . '</td>
@@ -83,6 +85,7 @@ include 'header.php';
 							<td>' . xssSanitize($row["issue_date_time"]) . '</td>
 							<td>' . xssSanitize($row["return_date_time"]) . '</td>
 							<td>' . $status . '</td>
+							<td><a href="view_book.php?book=' . $bookID . '">View</a></td>
 						</tr>
 						';
 						}

@@ -265,8 +265,16 @@ include 'header.php';
 					</ol>
 					<div class="card mb-4">
 						<div class="card-header">
-							<i class="fas fa-user-plus"></i> Edit Book Details
+							<div class="row">
+                                <div class="col col-md-6">
+                                    <i class="fas fa-user-plus"></i> Edit Book Details
+                                </div>
+                                <div class="col col-md-6" align="right">
+                                    <a href="view_book.php?book=<?= convert_data($book_row['book_id']) ?>" class="btn btn-success btn-sm">View Book</a>
+                                </div>
+                            </div>
 						</div>
+
 						<div class="card-body">
 							<form method="post">
 								<div class="row">

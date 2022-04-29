@@ -89,8 +89,8 @@
 
 /* TABLE */
 .dataTable-table {
-	max-width: 100%;
-	width: 100%;
+	max-width: 99%;
+	width: 99%;
 	border-spacing: 0;
 	border-collapse: separate;
 }
