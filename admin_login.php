@@ -43,7 +43,7 @@ if (isset($_POST["login_button"])) {
             $correctPassword = false;
 
             foreach ($statement->fetchAll() as $row) {
-                if ($row['admin_password'] == $formdata['admin_password']) {
+                if (password_verify($formdata['admin_password'], $row['admin_password'])) {
                     $correctPassword = true;
 
                     $_SESSION['admin_id'] = $row['admin_id'];

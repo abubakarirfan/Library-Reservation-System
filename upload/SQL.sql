@@ -1,7 +1,7 @@
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+# SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
+# SET time_zone = "+00:00";
 
 
 CREATE DATABASE IF NOT EXISTS `lms` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
@@ -21,7 +21,7 @@ CREATE TABLE `lms_admin` (
 --
 
 INSERT INTO `lms_admin` (`admin_id`, `admin_email`, `admin_password`) VALUES
-(1, 'johnsmith1@gmail.com', 'password');
+(1, 'johnsmith1@gmail.com', '$2y$10$3BXNIMDEzxBj9wH6.dWkWuP2prxk4qt3XMJ4hLiIXEyItyZO5QiSy'); # password
 
 -- --------------------------------------------------------
 
@@ -226,7 +226,7 @@ CREATE TABLE `lms_user` (
   `user_contact_no` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `user_profile` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `user_email_address` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `user_password` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `user_password` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `user_verificaton_code` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `user_verification_status` enum('No','Yes') COLLATE utf8_unicode_ci NOT NULL,
   `user_unique_id` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -240,11 +240,11 @@ CREATE TABLE `lms_user` (
 --
 
 INSERT INTO `lms_user` (`user_id`, `user_name`, `user_address`, `user_contact_no`, `user_profile`, `user_email_address`, `user_password`, `user_verificaton_code`, `user_verification_status`, `user_unique_id`, `user_status`, `user_created_on`, `user_updated_on`) VALUES
-(3, 'Paul Blake', '4016 Goldie Lane Cincinnati, OH 45202', '7539518520', '1636699900-2617.jpg', 'paulblake@gmail.com', 'password', 'b190bcd6e3b29674db036670cf122724', 'Yes', 'U39573214', 'Enable', '2021-11-12 12:21:40', '2021-11-14 17:40:05'),
-(4, 'Aaron Lawler', '1616 Broadway Avenue Chattanooga, TN 37421', '8569856321', '1636905360-32007.jpg', 'aaronlawler@live.com', 'password', 'add84abb895484d12344316eccb78a62', 'Yes', 'U37570190', 'Enable', '2021-11-12 16:39:20', '2021-11-17 10:49:20'),
-(5, 'Kathleen Forrest', '4545 Limer Street Greensboro, GA 30642', '85214796930', '1637041684-15131.jpg', 'kathleen@hotmail.com', 'password', '7013df5205011ffcb99ea57902c17369', 'Yes', 'U24567871', 'Enable', '2021-11-16 11:18:04', ''),
-(6, 'Carol Maney', '2703 Deer Haven Drive Greenville, SC 29607', '8521479630', '1637126571-21753.jpg', 'web-tutorial1@programmer.net', 'password', 'a6c2623984d590239244f8695df3a30b', 'Yes', 'U52357788', 'Enable', '2021-11-17 10:52:51', ''),
-(10, 'Kevin Peterson', '1889 Single Street Waltham, MA 02154', '8523698520', '1639658464-10192.jpg', 'web-tutorial@programmer.net', 'password123', '337ea20da40326d134fe5eca3fb03464', 'Yes', 'U59564819', 'Enable', '2021-12-14 12:56:29', '2021-12-20 15:21:45');
+(3, 'Paul Blake', '4016 Goldie Lane Cincinnati, OH 45202', '7539518520', '1636699900-2617.jpg', 'paulblake@gmail.com', '$2y$10$YYkYS8kN8i/rWAc.iBbiUu3b.5w5xTxTg4GgCWMRhSQhvkZxVWblK', 'b190bcd6e3b29674db036670cf122724', 'Yes', 'U39573214', 'Enable', '2021-11-12 12:21:40', '2021-11-14 17:40:05'),
+(4, 'Aaron Lawler', '1616 Broadway Avenue Chattanooga, TN 37421', '8569856321', '1636905360-32007.jpg', 'aaronlawler@live.com', '$2y$10$iRrikGm2NVZlFkPmabvSie2E6iLWideSiUPxQxEBgIT22BI6Fp3E2', 'add84abb895484d12344316eccb78a62', 'Yes', 'U37570190', 'Enable', '2021-11-12 16:39:20', '2021-11-17 10:49:20'),
+(5, 'Kathleen Forrest', '4545 Limer Street Greensboro, GA 30642', '85214796930', '1637041684-15131.jpg', 'kathleen@hotmail.com', '$2y$10$VjWy324JIV1Ju9KmJVVgFuqrjjDb.irpSFo0g/ZPAg50l2eslq14a', '7013df5205011ffcb99ea57902c17369', 'Yes', 'U24567871', 'Enable', '2021-11-16 11:18:04', ''),
+(6, 'Carol Maney', '2703 Deer Haven Drive Greenville, SC 29607', '8521479630', '1637126571-21753.jpg', 'web-tutorial1@programmer.net', '$2y$10$8eJgxVxLTF1VS180XfDj1uc9nPd1gu8/it3PAt/zJuQMHNZwwBFNS', 'a6c2623984d590239244f8695df3a30b', 'Yes', 'U52357788', 'Enable', '2021-11-17 10:52:51', ''),
+(10, 'Kevin Peterson', '1889 Single Street Waltham, MA 02154', '8523698520', '1639658464-10192.jpg', 'web-tutorial@programmer.net', '$2y$10$38OANawS7oT9xhpsOQrQwOU9PqGMSCWxWDCzn8fZuobXdmOT0mOqu', '337ea20da40326d134fe5eca3fb03464', 'Yes', 'U59564819', 'Enable', '2021-12-14 12:56:29', '2021-12-20 15:21:45');
 
 --
 -- Indexes for dumped tables
@@ -351,6 +351,6 @@ ALTER TABLE `lms_user`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+# /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+# /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+# /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
