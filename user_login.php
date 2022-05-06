@@ -63,14 +63,14 @@ if(isset($_POST["login_button"]))
 			{
 				if($row['user_status'] == 'Enable')
 				{
-					if($row['user_password'] == $formdata['user_password'])
+                    if (password_verify($formdata['user_password'], $row['user_password']))
 					{
 						$_SESSION['user_id'] = $row['user_unique_id'];
 						header('location:issue_book_details.php');
 					}
 					else
 					{
-						$message = '<li>Wrong Password</li>';
+						$message = '<li>Error: wrong password</li>';
 					}
 				}
 				else

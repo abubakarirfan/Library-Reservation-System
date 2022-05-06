@@ -66,32 +66,41 @@ if (isset($_POST['return_book'], $_POST['book_id'])) {
         $expected_return_date = date('Y-m-d H:i:s', strtotime($today_date . ' + ' . $total_book_issue_day . ' days'));
 
         $data = array(
-            ':book_id'      =>  $bookID,
-            ':user_id'      =>  $_SESSION['user_id'],
-            ':issue_date_time'  =>  $today_date,
-            ':expected_return_date' => $expected_return_date,
-            ':return_date_time' =>  '',
-            ':book_issue_status'    =>  'Issue',
-            ':book_fines'           => '0'
+                ':todays_date' => $today_date,
+                ':book_id' => $bookID,
         );
 
-        $query = "INSERT INTO lms_issue_book 
-                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status, book_fines) 
-                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status, :book_fines)";
+        // Update the LMS where there are still books available and the ID matches.
+        $query = "UPDATE lms_book SET book_no_of_copy = book_no_of_copy - 1, book_updated_on = :todays_date 
+                        WHERE book_isbn_number = :book_id AND book_no_of_copy >= 1";
 
         $statement = $connect->prepare($query);
         $statement->execute($data);
 
-        $query = "UPDATE lms_book 
-            SET book_no_of_copy = book_no_of_copy - 1, 
-                book_updated_on = '" . $today_date . "' 
-            WHERE book_isbn_number = '" . $bookID . "'";
+        if ($statement->rowCount() == 0) {
+            $message = "There are no longer any copies of this book available.";
+        } else {
+            $data = array(
+                ':book_id'      =>  $bookID,
+                ':user_id'      =>  $_SESSION['user_id'],
+                ':issue_date_time'  =>  $today_date,
+                ':expected_return_date' => $expected_return_date,
+                ':return_date_time' =>  '',
+                ':book_issue_status'    =>  'Issue',
+                ':book_fines'           => '0'
+            );
 
-        $connect->query($query);
+            $query = "INSERT INTO lms_issue_book      
+                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status, book_fines) 
+                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status, :book_fines)";
 
-        header('location: issue_book_details.php');
+            $statement = $connect->prepare($query);
+            $statement->execute($data);
 
-        return;
+            header('location: issue_book_details.php');
+
+            return;
+        }
     } else {
         $message = "You have already reached the maximum amount of books. Please return some to reserve more.";
     }
@@ -211,6 +220,8 @@ include 'header.php';
                         <?php elseif ($alreadyReserved) : ?>
                         <input type="hidden" name="book_id" value="<?= convert_data($book_row['book_isbn_number'], 'encrypt') ?>" />
                         <input type="submit" name="return_book" class="btn btn-secondary" value="Return Book" />
+                        <?php elseif ($book_row["book_no_of_copy"] == 0) : ?>
+                        <input type="submit" name="reserve_book" class="btn btn-primary" disabled value="No copies available" />
                         <?php else : ?>
                         <input type="hidden" name="book_id" value="<?= convert_data($book_row['book_isbn_number'], 'encrypt') ?>" />
                         <input type="submit" name="reserve_book" class="btn btn-primary" value="Reserve Copy" />
