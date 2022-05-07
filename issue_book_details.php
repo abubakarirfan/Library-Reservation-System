@@ -24,6 +24,7 @@ include 'header.php';
 <ul class="list-inline mt-4" align="center">
 	<li class="list-inline-item"><a href="issue_book_details.php">Current Booking</a></li>
 	<li class="list-inline-item"><a href="catalog.php">Catalog</a></li>
+    <li class="list-inline-item"><a href="search_form.php">Search</a></li>
 	<li class="list-inline-item"><a href="logout.php">Logout</a></li>
 </ul>
 

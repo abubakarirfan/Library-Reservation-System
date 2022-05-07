@@ -7,6 +7,7 @@ include 'header.php';
 <ul class="list-inline mt-4" align="center">
 	<li class="list-inline-item"><a href="issue_book_details.php">Current Booking</a></li>
 	<li class="list-inline-item"><a href="catalog.php">Catalog</a></li>
+    <li class="list-inline-item"><a href="search_form.php">Search</a></li>
 	<li class="list-inline-item"><a href="logout.php">Logout</a></li>
 </ul>
 
@@ -30,22 +31,8 @@ include 'header.php';
 						<th>ISBN No.</th>
 						<th>Category</th>
 						<th>Author</th>
-						<th>No. of Available Copy</th>
-						<th>Status</th>
-                        <th>More</th>
 					</tr>
 				</thead>
-				<tfoot>
-					<tr>
-						<th>Book Name</th>
-						<th>ISBN No.</th>
-						<th>Category</th>
-						<th>Author</th>
-						<th>No. of Available Copy</th>
-						<th>Status</th>
-						<th>More</th>
-					</tr>
-				</tfoot>
 				<tbody>
 					<?php
 
@@ -73,9 +60,6 @@ include 'header.php';
 								<td>' . xssSanitize($row["book_isbn_number"]) . '</td>
 								<td>' . xssSanitize($row["book_category"]) . '</td>
 								<td>' . xssSanitize($row["book_author"]) . '</td>
-								<td>' . xssSanitize($row["book_no_of_copy"]) . '</td>
-								<td>' . $book_status . '</td>
-								<td><a href="view_book.php?book=' . $bookID . '">View</a></td>
 							</tr>
 						';
 						}
