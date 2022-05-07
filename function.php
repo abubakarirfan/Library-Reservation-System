@@ -221,41 +221,6 @@ function Count_total_book_number($connect)
 	return $total;
 }
 
-function Count_total_author_number($connect)
-{
-	$total = 0;
 
-	$query = "
-	SELECT COUNT(author_id) AS Total FROM lms_author 
-	WHERE author_status = 'Enable'
-	";
-
-	$result  = $connect->query($query);
-
-	foreach($result as $row)
-	{
-		$total = $row["Total"];
-	}
-
-	return $total;
-}
-
-function Count_total_category_number($connect)
-{
-	$total = 0;
-
-	$query = "
-	SELECT COUNT(category_id) AS Total FROM lms_category 
-	WHERE category_status = 'Enable'
-	";
-
-	$result = $connect->query($query);
-
-	foreach($result as $row)
-	{
-		$total = $row["Total"];
-	}
-	return $total;
-}
 
 ?>
