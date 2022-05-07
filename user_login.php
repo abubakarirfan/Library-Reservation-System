@@ -61,9 +61,7 @@ if(isset($_POST["login_button"]))
 		{
 			foreach($statement->fetchAll() as $row)
 			{
-				if($row['user_status'] == 'Enable')
-				{
-                    if (password_verify($formdata['user_password'], $row['user_password']))
+				if (password_verify($formdata['user_password'], $row['user_password']))
 					{
 						$_SESSION['user_id'] = $row['user_unique_id'];
 						header('location:issue_book_details.php');
@@ -72,11 +70,6 @@ if(isset($_POST["login_button"]))
 					{
 						$message = '<li>Error: wrong password</li>';
 					}
-				}
-				else
-				{
-					$message = '<li>Your Account has been disabled</li>';	
-				}
 			}
 		}
 		else
