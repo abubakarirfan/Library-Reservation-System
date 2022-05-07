@@ -56,23 +56,6 @@ include 'header.php';
 				</div>
 			</div>
 		</div>
-		<div class="col-xl-3 col-md-6">
-			<div class="card bg-danger text-white mb-4">
-				<div class="card-body">
-					<h1 class="text-center"><?php echo Count_total_category_number($connect); ?></h1>
-					<h5 class="text-center">Total Categories</h5>
-				</div>
-			</div>
-		</div>
-		<div class="col-xl-3 col-md-6">
-			<div class="card bg-warning text-white mb-4">
-				<div class="card-body">
-					<h1 class="text-center"><?php echo Count_total_author_number($connect); ?></h1>
-					<h5 class="text-center">Total Authors</h5>
-				</div>
-			</div>
-		</div>
-
 	</div>
 </div>
 

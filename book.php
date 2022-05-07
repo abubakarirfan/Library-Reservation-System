@@ -54,18 +54,16 @@ if (isset($_POST["add_book"])) {
 			':book_category'		=>	$formdata['book_category'],
 			':book_author'			=>	$formdata['book_author'],
 			':book_name'			=>	$formdata['book_name'],
-            ':book_location_rack'   =>  '?',
 			':book_isbn_number'		=>	$formdata['book_isbn_number'],
 			':book_no_of_copy'		=>	$formdata['book_no_of_copy'],
-			':book_status'			=>	'Enable',
 			':book_added_on'		=>	get_date_time(time()),
 			':book_updated_on'		=>	get_date_time(time())
 		);
 
 		$query = "
 		INSERT INTO lms_book 
-        (book_category, book_author, book_name, book_location_rack, book_isbn_number, book_no_of_copy, book_status, book_added_on, book_updated_on) 
-        VALUES (:book_category, :book_author, :book_name, :book_location_rack, :book_isbn_number, :book_no_of_copy, :book_status, :book_added_on, :book_updated_on)
+        (book_category, book_author, book_name, book_isbn_number, book_no_of_copy, book_added_on, book_updated_on) 
+        VALUES (:book_category, :book_author, :book_name, :book_isbn_number, :book_no_of_copy, :book_added_on, :book_updated_on)
 		";
 
 		$statement = $connect->prepare($query);

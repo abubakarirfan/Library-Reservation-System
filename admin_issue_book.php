@@ -42,11 +42,11 @@ if (isset($_POST["issue_book_button"])) {
         if ($statement->rowCount() > 0) {
             foreach ($statement->fetchAll() as $book_row) {
                 //check book is available or not
-                if ($book_row['book_status'] == 'Enable' && $book_row['book_no_of_copy'] > 0) {
+                if ($book_row['book_no_of_copy'] > 0) {
                     //Check User is exist
 
                     $query = "
-                    SELECT user_id, user_status FROM lms_user 
+                    SELECT user_id FROM lms_user 
                     WHERE user_unique_id = '" . $formdata['user_id'] . "'
                     ";
 
@@ -56,10 +56,7 @@ if (isset($_POST["issue_book_button"])) {
 
                     if ($statement->rowCount() > 0) {
                         foreach ($statement->fetchAll() as $user_row) {
-                            if ($user_row['user_status'] == 'Enable') {
-                                //Check User Total issue of Book
-
-                                $book_issue_limit = get_book_issue_limit_per_user($connect);
+                            $book_issue_limit = get_book_issue_limit_per_user($connect);
 
                                 $total_book_issue = get_total_book_issue_per_user($connect, $formdata['user_id']);
 
@@ -77,13 +74,12 @@ if (isset($_POST["issue_book_button"])) {
                                         ':expected_return_date' => $expected_return_date,
                                         ':return_date_time' =>  '',
                                         ':book_issue_status'    =>  'Issue',
-                                        ':book_fines'           => '0'
                                     );
 
                                     $query = "
                                     INSERT INTO lms_issue_book 
-                                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status, book_fines) 
-                                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status, :book_fines)
+                                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status) 
+                                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status)
                                     ";
 
                                     $statement = $connect->prepare($query);
@@ -100,12 +96,10 @@ if (isset($_POST["issue_book_button"])) {
                                     $connect->query($query);
 
                                     header('location:admin_issue_book.php?msg=add');
+                                
                                 } else {
                                     $error .= 'User has already reached Book Issue Limit, First return pending book';
                                 }
-                            } else {
-                                $error .= '<li>User Account is Disable, Contact Admin</li>';
-                            }
                         }
                     } else {
                         $error .= '<li>User not Found</li>';
