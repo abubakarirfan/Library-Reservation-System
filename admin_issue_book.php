@@ -114,6 +114,8 @@ if (isset($_POST["issue_book_button"])) {
     }
 }
 
+$emailSent = false;
+
 if (isset($_POST['book_fine_button'])) {
     $issue_book_id = convert_data($_GET["code"], 'decrypt');
 
@@ -134,7 +136,11 @@ if (isset($_POST['book_fine_button'])) {
         }
 
         foreach ($userData as $userRow) {
-            sendEmail($userRow['user_email_address']);
+            if (sendEmail($userRow['user_email_address'])) {
+                $emailSent = true;
+
+                break;
+            }
         }
     }
 }
@@ -401,6 +407,10 @@ include 'header.php';
                         <li class="breadcrumb-item active">View Issue Book Details</li>
                     </ol>
                     ';
+
+                    if ($emailSent) {
+                        echo '<div class="alert alert-success"><ul>Email Successfully Sent</ul></div>';
+                    }
 
                     if ($error != '') {
                         echo '<div class="alert alert-danger">' . $error . '</div>';

@@ -12,8 +12,9 @@ function xssSanitize($strIn) {
 }
 
 function sendEmail($to) {
-	global $smtp_username;
-	global $smtp_password;
+	// Email credentials
+	$username = 'MY USERNAME';
+	$password = 'MY PASSWORD';
 
 	require 'PHPMailer/src/Exception.php';
 	require 'PHPMailer/src/PHPMailer.php';
@@ -27,22 +28,29 @@ function sendEmail($to) {
 	$mail->SMTPAuth   = TRUE;
 	$mail->SMTPSecure = "tls";
 	$mail->Port       = 587;
-	$mail->Host       = "smtp.gmail.com";
-	$mail->Username   = $smtp_username;
-	$mail->Password   = $smtp_password;
-
+	$mail->Host       = "tls://smtp.gmail.com";
+	$mail->Username   = $username;
+	$mail->Password   = $password;
+	$mail->Mailer = "smtp";
 
 	$mail->IsHTML(true);
 	$mail->AddAddress($to, $to);
-	$mail->SetFrom($smtp_username, "LMS");
-	$mail->Subject = "Fine";
+
+	$mail->From = $username;
+	$mail->FromName = "LMS";
 	$content = "Hello, your book has been deemed overdue and must be returned.";
 
-	$mail->MsgHTML($content);
+	$mail->Subject = 'Book Fine';
+	$mail->Body    = $content;
+	$mail->AltBody = 'An outstanding notice';
+
 	if(!$mail->Send()) {
-		echo "Error while sending Email.";
+		return false;
+//		echo "Error while sending Email.";
+//		var_dump($mail);
 	} else {
-		echo "Email sent successfully";
+		return true;
+//		echo "Email sent successfully";
 	}
 }
 
