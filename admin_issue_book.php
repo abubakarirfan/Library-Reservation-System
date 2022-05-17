@@ -45,14 +45,16 @@ if (isset($_POST["issue_book_button"])) {
                 if ($book_row['book_no_of_copy'] > 0) {
                     //Check User is exist
 
-                    $query = "
-                    SELECT user_id FROM lms_user 
-                    WHERE user_unique_id = '" . $formdata['user_id'] . "'
-                    ";
+                    $data = array(
+                        ':user_id'      =>  $formdata['user_id'],
+                    );
+
+                    $query = "SELECT user_id FROM lms_user 
+                                WHERE user_unique_id = :user_id;";
 
                     $statement = $connect->prepare($query);
 
-                    $statement->execute();
+                    $statement->execute($data);
 
                     if ($statement->rowCount() > 0) {
                         foreach ($statement->fetchAll() as $user_row) {
@@ -74,12 +76,13 @@ if (isset($_POST["issue_book_button"])) {
                                         ':expected_return_date' => $expected_return_date,
                                         ':return_date_time' =>  '',
                                         ':book_issue_status'    =>  'Issue',
+                                        ':book_fines' => '0'
                                     );
 
                                     $query = "
                                     INSERT INTO lms_issue_book 
-                                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status) 
-                                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status)
+                                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status, book_fines) 
+                                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status, :book_fines)
                                     ";
 
                                     $statement = $connect->prepare($query);
@@ -119,23 +122,26 @@ $emailSent = false;
 if (isset($_POST['book_fine_button'])) {
     $issue_book_id = convert_data($_GET["code"], 'decrypt');
 
-    $query = "SELECT * FROM lms_issue_book WHERE issue_book_id = '$issue_book_id'";
+    $data = array(
+        ':book_id'      =>  $issue_book_id,
+    );
 
-    $result = $connect->query($query);
+    $query = "SELECT * FROM lms_issue_book WHERE issue_book_id = :book_id";
 
-    foreach ($result as $row) {
-//        var_dump($row);
+    $statement = $connect->prepare($query);
+    $statement->execute($data);
 
-        $query = "SELECT * FROM lms_user 
-                    WHERE user_unique_id = '" . $row["user_id"] . "'";
+    foreach ($statement->fetchAll() as $row) {
+        $data = array(
+            ':user_id'      =>  $row['user_id'],
+        );
 
-        $userData = $connect ->query($query);
+        $query = "SELECT * FROM lms_user WHERE user_unique_id = :user_id";
 
-        if ($userData->rowCount() === 0) {
-            continue;
-        }
+        $statement = $connect->prepare($query);
+        $statement->execute($data);
 
-        foreach ($userData as $userRow) {
+        foreach ($statement->fetchAll() as $userRow) {
             if (sendEmail($userRow['user_email_address'])) {
                 $emailSent = true;
 
@@ -468,55 +474,42 @@ include 'header.php';
 
                     $status = $row["book_issue_status"];
 
-                    $form_item = '';
+                    $statusText = getBookStatus($row['issue_book_id'], $row['book_issue_status'], $row['expected_return_date']);
 
-                    if ($status == "Issue") {
-                        $status = '<span class="badge bg-warning">Issue</span>';
-
-                        $form_item = '
-                        <label><input type="checkbox" name="book_return_confirmation" value="Yes" /> I acknowledge that I have received the issued book.</label>
+                    $formText = '<label><input type="checkbox" name="book_return_confirmation" value="Yes" /> I acknowledge that I have received the issued book.</label>
                         <br />
                         <div class="mt-4 mb-4">
-                            <input type="submit" name="book_return_button" value="Book Return" class="btn btn-primary" />
-                        </div>
-                        ';
-                    }
+                            <input type="submit" name="book_return_button" value="Return Book" class="btn btn-primary" />
+                        </div>';
 
-                    if ($status == 'Not Return') {
-                        $status = '<span class="badge bg-danger">Not Return</span>';
-
-                        $form_item = '
-                        <label><input type="checkbox" name="book_return_confirmation" value="Yes" /> I aknowledge that I have received Issued Book</label><br />
-                        <div class="mt-4 mb-4">
-                            <input type="submit" name="book_return_button" value="Book Return" class="btn btn-primary" />
-                        </div>
-                        ';
-                    }
-
-                    if ($status == 'Return') {
-                        $status = '<span class="badge bg-primary">Return</span>';
-                    }
+                    $issueDate = formatRow($row['issue_date_time']);
+                    $expectedDate = formatRow($row['expected_return_date']);
+                    $returnDate = empty($row['return_date_time']) ? 'Not Returned' :  formatRow($row['return_date_time']);
 
                     echo '
                     <h2>Issue Book Details</h2>
                     <table class="table table-bordered">
                         <tr>
-                            <th width="30%">Book Issue Date</th>
-                            <td width="70%">' . $row["issue_date_time"] . '</td>
+                            <th width="30%">Book Reservation Date</th>
+                            <td width="70%">' . $issueDate . '</td>
+                        </tr>
+                        <tr>
+                            <th width="30%">Expected Return Date</th>
+                            <td width="70%">' . $expectedDate . '</td>
                         </tr>
                         <tr>
                             <th width="30%">Book Return Date</th>
-                            <td width="70%">' . $row["return_date_time"] . '</td>
+                            <td width="70%">' . $returnDate . '</td>
                         </tr>
                         <tr>
                             <th width="30%">Book Issue Status</th>
-                            <td width="70%">' . $status . '</td>
+                            <td width="70%">' . $statusText . '</td>
                         </tr>
                     </table>
                     <form method="POST">
                         <input type="hidden" name="issue_book_id" value="' . $issue_book_id . '" />
                         <input type="hidden" name="book_isbn_number" value="' . $row["book_id"] . '" />
-                        ' . $form_item . '
+                        ' . $formText . '
                     </form>
                     '  . ($row["book_issue_status"] == 'Not Return' ? ' 
                     <form method="POST">
@@ -566,7 +559,7 @@ include 'header.php';
                         <tr>
                             <th>Book ISBN Number</th>
                             <th>Student ID</th>
-                            <th>Issue Date</th>
+                            <th>Reservation Date</th>
                             <th>Return Date</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -576,78 +569,37 @@ include 'header.php';
                         <tr>
                             <th>Book ISBN Number</th>
                             <th>Student ID</th>
-                            <th>Issue Date</th>
+                            <th>Reservation Date</th>
                             <th>Return Date</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </tfoot>
                     <tbody>
-                        <?php
-                        if ($statement->rowCount() > 0) {
-
-
+                        <?php if ($statement->rowCount() > 0) : ?> <?php
                             foreach ($statement->fetchAll() as $row) {
                                 $status = $row["book_issue_status"];
+                                $statusText = getBookStatus($row['issue_book_id'], $row['book_issue_status'], $row['expected_return_date']);;
 
+                                $issueDate = formatRow($row['issue_date_time']);
+                                $returnDate = empty($row['return_date_time']) ? 'Not Returned' :  formatRow($row['return_date_time']);
 
-                                if ($row["book_issue_status"] == "Issue") {
-                                    $current_date_time = new DateTime(get_date_time($connect));
-                                    $expected_return_date = new DateTime($row["expected_return_date"]);
-
-                                    if ($current_date_time > $expected_return_date) {
-                                        $interval = $current_date_time->diff($expected_return_date);
-
-                                        $total_day = $interval->d;
-
-                                        $book_fines = $total_day * $one_day_fine;
-
-                                        $status = 'Not Return';
-
-                                        $query = "
-        						                    UPDATE lms_issue_book 
-													SET book_fines = '" . $book_fines . "', 
-													book_issue_status = '" . $status . "' 
-													WHERE issue_book_id = '" . $row["issue_book_id"] . "'
-        						";
-
-                                        $connect->query($query);
-                                    }
-                                }
-
-                                if ($status == 'Issue') {
-                                    $status = '<span class="badge bg-warning">Issue</span>';
-                                }
-
-                                if ($status == 'Not Return') {
-                                    $status = '<span class="badge bg-danger">Not Return</span>';
-                                }
-
-                                if ($status == 'Return') {
-                                    $status = '<span class="badge bg-primary">Return</span>';
-                                }
-
-                                echo '
+                                ?>
         				<tr>
-        					<td>' . $row["book_id"] . '</td>
-        					<td>' . $row["user_id"] . '</td>
-        					<td>' . $row["issue_date_time"] . '</td>
-        					<td>' . $row["return_date_time"] . '</td>
-        					<td>' . $status . '</td>
+        					<td><?= $row["book_id"] ?></td>
+        					<td><?= $row["user_id"] ?></td>
+        					<td><?= $issueDate ?></td>
+        					<td><?= $returnDate ?></td>
+        					<td><?= $statusText ?></td>
         					<td>
-                                <a href="admin_issue_book.php?action=view&code=' . convert_data($row["issue_book_id"]) . '" class="btn btn-info btn-sm">View</a>
+                                <a href="admin_issue_book.php?action=view&code=<?= convert_data($row["issue_book_id"]) ?>" class="btn btn-info btn-sm">View</a>
                             </td>
         				</tr>
-        				';
-                            }
-                        } else {
-                            echo '
-        			<tr>
-        				<td colspan="7" class="text-center">No Data Found</td>
-        			</tr>
-        			';
-                        }
-                        ?>
+                        <?php } else : ?>
+                        <tr>
+                            <td colspan="7" class="text-center">No Data Found</td>
+                        </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

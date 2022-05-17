@@ -54,6 +54,86 @@ function sendEmail($to) {
 	}
 }
 
+function formatRow($dateTime) {
+	if (empty($dateTime)) {
+		return '';
+	}
+
+	$time = new DateTime($dateTime);
+	$time->setTimezone(new DateTimeZone('Australia/Melbourne'));
+
+	return date_format($time, 'g:ia \o\n jS F Y');
+}
+
+function countDaysSince($expectedDate, $current = null) {
+	global $connect;
+
+	$current_date_time = $current == null ? new DateTime(get_date_time($connect)) : $current;
+	$expected_return_date = $expectedDate instanceof DateTime ? $expectedDate : new DateTime($expectedDate);
+
+	if ($current_date_time > $expected_return_date) {
+		$interval = $current_date_time->diff($expected_return_date);
+
+		return intval($interval->format('%a'));
+	}
+
+	return 0;
+}
+
+function getBookStatus($bookID, $statusIn, $expectedReturnDate, $bookFine = 0.67) {
+	global $connect;
+
+	$statusText = '';
+
+	switch ($statusIn) {
+		case "Issue": {
+			$statusText = '<span class="badge bg-warning">Reserved</span>';
+
+			break;
+		}
+		case "Not Return": {
+			$current_date_time = new DateTime(get_date_time($connect));
+			$expected_return_date = new DateTime($expectedReturnDate);
+
+			if ($current_date_time > $expected_return_date) {
+				$total_day = countDaysSince($expected_return_date, $current_date_time);
+
+				$book_fines = $total_day * $bookFine;
+
+				$data = array(
+					':book_fine' => $book_fines,
+					':book_issue_status' => $statusIn,
+					':issue_book_id' => $bookID
+				);
+
+				$query = "UPDATE lms_issue_book 
+                            SET book_fines = :book_fine, 
+                            book_issue_status = :book_issue_status 
+                            WHERE issue_book_id = :issue_book_id";
+
+				$statement = $connect->prepare($query);
+				$statement->execute($data);
+
+				$statusText = '<span class="badge bg-danger">Overdue (' . $total_day . ' days)</span>';;
+			} else {
+				$statusText = '<span class="badge bg-danger">Not Returned</span>';
+			}
+
+			break;
+		}
+		case "Return": {
+			$statusText = '<span class="badge bg-primary">Returned</span>';
+			break;
+		}
+		default: {
+			$statusText = "<span class='badge bg-secondary'>$statusText</span>";
+		}
+
+	}
+
+	return $statusText;
+}
+
 function doMissingEncryptionChecks() {
     global $sslChecksRunThisLoad;
 
