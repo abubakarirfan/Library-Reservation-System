@@ -114,6 +114,31 @@ if (isset($_POST["issue_book_button"])) {
     }
 }
 
+if (isset($_POST['book_fine_button'])) {
+    $issue_book_id = convert_data($_GET["code"], 'decrypt');
+
+    $query = "SELECT * FROM lms_issue_book WHERE issue_book_id = '$issue_book_id'";
+
+    $result = $connect->query($query);
+
+    foreach ($result as $row) {
+//        var_dump($row);
+
+        $query = "SELECT * FROM lms_user 
+                    WHERE user_unique_id = '" . $row["user_id"] . "'";
+
+        $userData = $connect ->query($query);
+
+        if ($userData->rowCount() === 0) {
+            continue;
+        }
+
+        foreach ($userData as $userRow) {
+            sendEmail($userRow['user_email_address']);
+        }
+    }
+}
+
 if (isset($_POST["book_return_button"])) {
     if (isset($_POST["book_return_confirmation"])) {
         $data = array(
@@ -483,6 +508,11 @@ include 'header.php';
                         <input type="hidden" name="book_isbn_number" value="' . $row["book_id"] . '" />
                         ' . $form_item . '
                     </form>
+                    '  . ($row["book_issue_status"] == 'Not Return' ? ' 
+                    <form method="POST">
+                         <input type="hidden" name="issue_book_id" value="' . $issue_book_id . '" />
+                         <input type="submit" name="book_fine_button" value="Issue Fine" class="btn btn-danger" />
+                    </form> ' : '') . '
                     <br />
                     ';
                 }
