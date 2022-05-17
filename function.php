@@ -2,10 +2,48 @@
 
 //function.php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 $sslChecksRunThisLoad = false;
 
 function xssSanitize($strIn) {
     return htmlspecialchars($strIn);
+}
+
+function sendEmail($to) {
+	global $smtp_username;
+	global $smtp_password;
+
+	require 'PHPMailer/src/Exception.php';
+	require 'PHPMailer/src/PHPMailer.php';
+	require 'PHPMailer/src/SMTP.php';
+
+	$mail = new PHPMailer();
+	$mail->IsSMTP();
+	$mail->Mailer = "smtp";
+
+	$mail->SMTPDebug  = 0;
+	$mail->SMTPAuth   = TRUE;
+	$mail->SMTPSecure = "tls";
+	$mail->Port       = 587;
+	$mail->Host       = "smtp.gmail.com";
+	$mail->Username   = $smtp_username;
+	$mail->Password   = $smtp_password;
+
+
+	$mail->IsHTML(true);
+	$mail->AddAddress($to, $to);
+	$mail->SetFrom($smtp_username, "LMS");
+	$mail->Subject = "Fine";
+	$content = "Hello, your book has been deemed overdue and must be returned.";
+
+	$mail->MsgHTML($content);
+	if(!$mail->Send()) {
+		echo "Error while sending Email.";
+	} else {
+		echo "Email sent successfully";
+	}
 }
 
 function doMissingEncryptionChecks() {
