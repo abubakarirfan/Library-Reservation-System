@@ -98,22 +98,6 @@ function getBookStatus($bookID, $statusIn, $expectedReturnDate, $bookFine = 0.67
 			if ($current_date_time > $expected_return_date) {
 				$total_day = countDaysSince($expected_return_date, $current_date_time);
 
-				$book_fines = $total_day * $bookFine;
-
-				$data = array(
-					':book_fine' => $book_fines,
-					':book_issue_status' => $statusIn,
-					':issue_book_id' => $bookID
-				);
-
-				$query = "UPDATE lms_issue_book 
-                            SET book_fines = :book_fine, 
-                            book_issue_status = :book_issue_status 
-                            WHERE issue_book_id = :issue_book_id";
-
-				$statement = $connect->prepare($query);
-				$statement->execute($data);
-
 				$statusText = '<span class="badge bg-danger">Overdue (' . $total_day . ' days)</span>';;
 			} else {
 				$statusText = '<span class="badge bg-danger">Not Returned</span>';

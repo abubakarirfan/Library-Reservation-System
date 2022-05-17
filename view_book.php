@@ -90,8 +90,8 @@ if (isset($_POST['return_book'], $_POST['book_id'])) {
             );
 
             $query = "INSERT INTO lms_issue_book      
-                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status, book_fines) 
-                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status, '0')";
+                    (book_id, user_id, issue_date_time, expected_return_date, return_date_time, book_issue_status) 
+                    VALUES (:book_id, :user_id, :issue_date_time, :expected_return_date, :return_date_time, :book_issue_status)";
 
             $statement = $connect->prepare($query);
             $statement->execute($data);
