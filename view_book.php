@@ -32,7 +32,7 @@ if (isset($_POST['return_book'], $_POST['book_id'])) {
         UPDATE lms_issue_book 
         SET return_date_time = :return_date_time, 
         book_issue_status = :book_issue_status 
-        WHERE book_id = :issue_book_id AND book_issue_status = 'Issue'";
+        WHERE book_id = :issue_book_id AND book_issue_status = 'Issue' OR book_issue_status = 'Not Return'";
 
     $statement = $connect->prepare($query);
     $statement->execute($data);
@@ -111,15 +111,17 @@ $bookID = convert_data($_GET['book'], 'decrypt');
 $alreadyReserved = false;
 
 $data = array(
-    ':book_id'		=>	$bookID
+    ':book_id'		=> $bookID,
+    ':user_id'      => $_SESSION['user_id']
 );
 
 $query = "
 	SELECT * FROM lms_issue_book 
 	INNER JOIN lms_book 
 	ON lms_book.book_isbn_number = lms_issue_book.book_id 
-	WHERE lms_issue_book.user_id = '" . $_SESSION['user_id'] . "' 
-	AND lms_book.book_id = :book_id AND book_issue_status = 'Issue'
+	WHERE lms_issue_book.user_id = :user_id 
+	AND lms_book.book_id = :book_id 
+	AND (book_issue_status = 'Issue' OR book_issue_status = 'Not Return')
 	ORDER BY lms_issue_book.issue_book_id DESC
 ";
 
@@ -133,8 +135,12 @@ if ($statement->rowCount() > 0) {
     $alreadyReserved = true;
 
     $book_row = $statement->fetch();
-    $status = '<div class="badge bg-warning">Reserved</div>';
+    $status = getBookStatus($book_row['issue_book_id'], $book_row['book_issue_status'], $book_row['expected_return_date']);
 } else {
+    $data = array(
+        ':book_id'		=> $bookID
+    );
+
     $query = "SELECT * FROM lms_book WHERE lms_book.book_id = :book_id";
 
     $statement = $connect->prepare($query);
@@ -213,6 +219,21 @@ include 'header.php';
                             <div><?= xssSanitize($book_row["book_no_of_copy"]); ?></div>
                         </div>
                     </div>
+                    <?php if ($alreadyReserved) : ?>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Expected Return Date</h4>
+                            <div><?= formatRow($book_row["expected_return_date"]); ?></div>
+                        </div>
+                        <?php if (($o = countDaysSince($book_row['expected_return_date'])) > 0) : ?>
+                        <div class="col-md-6">
+                            <h4>Overdue Fees</h4>
+                            <div><?= "$" . ($o * 0.67) ?></div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
                     <div class="mt-4 mb-3 text-center">
                         <?php if (is_admin_login()) : ?>
                         <a class="btn btn-secondary" href="book.php?action=edit&code=<?= convert_data($book_row['book_id'], 'encrypt') ?>">Edit</a>

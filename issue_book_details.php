@@ -18,6 +18,16 @@ $statement = $connect->prepare($query);
 
 $statement->execute();
 
+$fetchedRows = $statement->fetchAll();
+
+$errorMessage = array();
+
+foreach ($fetchedRows as $rowIn) {
+    if ($rowIn['book_issue_status'] == 'Not Return') {
+        $errorMessage[] = $rowIn['book_name'] . ' is overdue by ' . countDaysSince($rowIn['expected_return_date']) . ' days(s)';
+    }
+}
+
 include 'header.php';
 ?>
 
@@ -29,6 +39,7 @@ include 'header.php';
 </ul>
 
 <div class="container-fluid py-4" style="min-height: 700px;">
+
 	<h1>Issue Book Detail</h1>
 	<div class="card mb-4">
 		<div class="card-header">
@@ -41,12 +52,19 @@ include 'header.php';
 			</div>
 		</div>
 		<div class="card-body">
+            <?php if (sizeof($errorMessage) > 0) : ?>
+            <div class="alert alert-danger">
+            <?php foreach ($errorMessage as $val) : ?>
+            <ul><?= $val ?></ul>
+            <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
 			<table id="datatablesSimple">
 				<thead>
 					<tr>
 						<th>Book ISBN No.</th>
 						<th>Book Name</th>
-						<th>Issue Date</th>
+						<th>Reservation Date</th>
 						<th>Return Date</th>
 						<th>Status</th>
 					</tr>
@@ -55,37 +73,29 @@ include 'header.php';
 					<tr>
 						<th>Book ISBN No.</th>
 						<th>Book Name</th>
-						<th>Issue Date</th>
+						<th>Reservation Date</th>
 						<th>Return Date</th>
 						<th>Status</th>
 					</tr>
 				</tfoot>
 				<tbody>
 					<?php
-					if ($statement->rowCount() > 0) {
-						foreach ($statement->fetchAll() as $row) {
-							$status = $row["book_issue_status"];
-							if ($status == 'Issue') {
-								$status = '<span class="badge bg-warning">Issue</span>';
-							}
-
-							if ($status == 'Not Return') {
-								$status = '<span class="badge bg-danger">Not Return</span>';
-							}
-
-							if ($status == 'Return') {
-								$status = '<span class="badge bg-primary">Return</span>';
-							}
+					if (sizeof($fetchedRows) > 0) {
+						foreach ($fetchedRows as $row) {
+							$statusText = getBookStatus($row['issue_book_id'], $row['book_issue_status'], $row['expected_return_date']);
 
                             $bookID = convert_data($row['book_id'], 'encrypt');
+
+                            $issueDate = formatRow($row['issue_date_time']);
+                            $returnDate = empty($row['return_date_time']) ? 'Not Returned' :  formatRow($row['return_date_time']);
 
 							echo '
 						<tr>
 							<td>' . xssSanitize($row["book_isbn_number"]) . '</td>
 							<td>' . xssSanitize($row["book_name"]) . '</td>
-							<td>' . xssSanitize($row["issue_date_time"]) . '</td>
-							<td>' . xssSanitize($row["return_date_time"]) . '</td>
-							<td>' . $status . '</td>
+							<td>' . $issueDate . '</td>
+							<td>' . $returnDate . '</td>
+							<td>' . $statusText . '</td>
 							<td><a href="view_book.php?book=' . $bookID . '">View</a></td>
 						</tr>
 						';
