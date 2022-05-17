@@ -110,8 +110,6 @@ if (isset($_POST['return_book'], $_POST['book_id'])) {
 $bookID = convert_data($_GET['book'], 'decrypt');
 $alreadyReserved = false;
 
-var_dump($bookID);
-
 $data = array(
     ':book_id'		=> $bookID,
     ':user_id'      => $_SESSION['user_id']
